@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Model\Entity\Type;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Migrations\Command\Phinx\Dump;
 
 /**
  * Device Model
@@ -42,32 +44,116 @@ class DeviceTable extends Table
     public function initialize(array $config): void
     {
         parent::initialize($config);
-
+        $this->m_type = new TypeTable();
+        $this->m_suppliers = new SuppliersTable();
         $this->setTable('device');
         $this->setDisplayField('name');
         $this->setPrimaryKey('id');
         $this->belongsTo('Type', [
             'foreignKey' => 'device_type'
         ]);
-        $this->belongsTo('Suppliers', [
-            'foreignKey' => 'supplier_id',
-            'joinType' => 'INNER',
-        ]);
-        $this->hasMany('Assign', [
-            'foreignKey' => 'device_id',
-        ]);
+        $this->belongsTo('Type', ['foreignKey' => 'device_type'])
+            ->setConditions([['Type.del_flag' => UNDEL, 'Type.active' => ACTIVE]]);
+
+        $this->belongsTo('Suppliers', ['foreignKey' => 'supplier_id', 'joinType' => 'left',])
+            ->setConditions(['Suppliers.del_flag' => UNDEL, 'Suppliers.active' => ACTIVE]);
+
+        $this->belongsTo('MachineStatus', ['foreginKey' => 'machine_status_id'])
+            ->setConditions(['MachineStatus.del_flag' => UNDEL, 'MachineStatus.active' => ACTIVE]);
+
+        $this->hasMany('Assign', ['foreignKey' => 'device_id',])
+            ->setConditions(['Assign.del_flag' => UNDEL, 'Assign.active' => ACTIVE]);
+
         $this->hasMany('AttachedImage', [
             'foreignKey' => 'device_id',
         ]);
-        $this->hasMany('History', [
-            'foreignKey' => 'device_id',
-        ]);
+
+        $this->hasMany('History', ['foreignKey' => 'device_id',])
+            ->setConditions(['History.del_flag' => UNDEL, 'History.active' => ACTIVE]);
     }
-    public function getAll()
+    public function getOne($id = null)
     {
-        $result = $this->find()->where(['del_flag' => UNDEL, 'active' => ACTIVE]);
+        $device = $this->find()
+            ->where([
+                $this->getAlias() . '.del_flag' => UNDEL,
+                $this->getAlias() . '.active' => ACTIVE,
+                $this->getAlias() . '.id' => $id
+            ])
+            ->contain([
+                'Suppliers',
+                'Type',
+                'MachineStatus'
+            ])
+            ->first();
+        if (!empty($device)) {
+            return $device;
+        } else return false;
+    }
+    public function getAll($condittion = [])
+    {
+        $result = $this->find()->where([$this->getAlias() . '.del_flag' => UNDEL, $this->getAlias() . '.active' => ACTIVE])->contain($condittion);
         if (!empty($result)) {
             return $result;
+        } else return false;
+    }
+    public function getCombineCodeWhileCreate($device_type_id = null, $supplier_id = null)
+    {
+        $device_type_name = $this->m_type->get($device_type_id)->name;
+        $supllier_name = $this->m_suppliers->get($supplier_id)->name;
+        $last_device_id = $this->find()->where()->last()->id + 1;
+        $code = $device_type_name . '-' . $supllier_name . '-' . $last_device_id;
+        return $code;
+    }
+    public function getCombineCodeWhileEdit($id = null, $device_type_id = null, $supplier_id = null)
+    {
+        $device_type_name = $this->m_type->get($device_type_id)->name;
+        $supllier_name = $this->m_suppliers->get($supplier_id)->name;
+        $device_id = $this->find()->select(['id'])->where(['id' => $id])->first();
+        $code = $device_type_name . '-' . $supllier_name . '-' . $device_id->id;
+        // dd($code);
+        return $code;
+    }
+
+    public function addDevice($data = [], $createdBy = null, $device_code = null)
+    {
+        $device = $this->newEmptyEntity();
+        $device->name = $data['name'];
+        $device->serial = $data['serial'];
+        $device->code = $device_code;
+        $device->property_type = $data['property_type'];
+        $device->price = $data['price'];
+        $device->created_buy = $data['created_buy'];
+        $device->model = $data['model'];
+        $device->warranty_time = $data['warranty_time'];
+        $device->device_type = $data['device_type'];
+        $device->machine_status_id = $data['machine_status_id'];
+        $device->supplier_id = $data['supplier_id'];
+        $device->status = $data['status'];
+        $device->description = $data['description'];
+        $device->created_by = $createdBy;
+        if ($this->save($device)) {
+            return true;
+        } else return false;
+    }
+    public function editDevice($id = null, $data = [], $device_code = null, $updated_by = null)
+    {
+        $device = $this->find()->where(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id])->first();
+        $device->name = $data['name'];
+        $device->serial = $data['serial'];
+        $device->code = $device_code;
+        $device->property_type = $data['property_type'];
+        $device->price = $data['price'];
+        $device->created_buy = $data['created_buy'];
+        $device->model = $data['model'];
+        $device->warranty_time = $data['warranty_time'];
+        $device->device_type = $data['device_type'];
+        $device->machine_status_id = $data['machine_status_id'];
+        $device->supplier_id = $data['supplier_id'];
+        $device->status = $data['status'];
+        $device->description = $data['description'];
+        $device->created_by = $updated_by;
+        if ($this->save($device)) {
+            return true;
         } else return false;
     }
     /**

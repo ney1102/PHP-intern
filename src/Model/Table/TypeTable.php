@@ -48,7 +48,7 @@ class TypeTable extends Table
         if (!empty($result)) {
             return $result;
         } else {
-            return false;
+            return null;
         }
     }
     public function getOneById($condition = [], $contain = [])

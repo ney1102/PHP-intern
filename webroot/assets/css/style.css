@@ -9388,7 +9388,7 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #ffffff;
+  color: #C0B9C0;
   text-align: left;
   background-color: #fff;
 }
@@ -24586,7 +24586,7 @@ select.tt-query,
 select.tt-hint {
   padding: .4375rem .75rem;
   border: 0;
-  color: #4b5564;
+  color: #6C7293;
 }
 
 select.form-control:focus,
@@ -25964,7 +25964,7 @@ div.tagsinput {
 .table td,
 .jsgrid .jsgrid-table td {
   vertical-align: middle;
-  font-size: 1.15rem;
+  font-size: 1rem;
   line-height: 1;
   white-space: nowrap;
 }

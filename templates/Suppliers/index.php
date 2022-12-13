@@ -53,7 +53,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-lg-1">
-                        <button class="btn btn-success w-100" type="submit">Search</button>
+                        <button class="btn btn-success " style="height: 38px;" type="submit">Search</button>
                     </div>
                 </form>
             </div>
@@ -83,17 +83,23 @@
                                         <button class="btn dropdown-toggle" type="button" id="dropdownMenuOutlineButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <img src="/img/default/icon-option.svg">
                                         </button>
-                                        <div class="dropdown-menu " aria-labelledby="dropdownMenuOutlineButton2" x-placement="bottom-start" style="width: 30px;">
-                                            <?= $this->Html->link(
-                                                __('View'),
-                                                ['action' => 'view', $supplier->id],
-                                                ['class' => 'dropdown-item text-center']
-                                            ) ?>
+                                        <div class="dropdown-menu " aria-labelledby="dropdownMenuOutlineButton2" x-placement="bottom-start" style="width: 10px;">
                                             <?= $this->Html->link(
                                                 __('Edit'),
                                                 ['action' => 'edit', $supplier->id],
                                                 ['class' => 'dropdown-item text-center']
                                             ) ?>
+                                            <?= $this->Form->create(null, [
+                                                'url' => [
+                                                    'controller' => 'Suppliers',
+                                                    'action' => 'delete', $supplier->id
+                                                ],
+                                                'method' => 'post',
+                                                'id' => 'del' . $supplier->id
+                                            ]); ?>
+                                            <a class="dropdown-item text-center test_sub" href="javascript:void(0)" data-id="<?= $supplier->id ?>" data-name="<?= $supplier->name ?>">Delete</a>
+                                            <?= $this->Form->end() ?>
+
                                         </div>
                                     </div>
 

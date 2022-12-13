@@ -64,32 +64,3 @@
                 <?= $this->Form->end() ?>
             </div>
         </div>
-
-        <div class="row">
-            <aside class="column">
-                <div class="side-nav">
-                    <h4 class="heading"><?= __('Actions') ?></h4>
-                    <?= $this->Html->link(__('List Suppliers'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-                </div>
-            </aside>
-            <div class="column-responsive column-80">
-                <div class="suppliers form content">
-                    <?= $this->Form->create($supplier) ?>
-                    <fieldset>
-                        <legend><?= __('Add Supplier') ?></legend>
-                        <?php
-                        echo $this->Form->control('name');
-                        echo $this->Form->control('description');
-                        // echo $this->Form->control('created_on');
-                        // echo $this->Form->control('created_by');
-                        // echo $this->Form->control('updated_on');
-                        // echo $this->Form->control('updated_by');
-                        // echo $this->Form->control('active');
-                        // echo $this->Form->control('del_flag');
-                        ?>
-                    </fieldset>
-
-                    <?= $this->Form->end() ?>
-                </div>
-            </div>
-        </div>

@@ -62,7 +62,7 @@ class SuppliersTable extends Table
         if (!empty($result)) {
             return $result;
         } else {
-            return false;
+            return null;
         }
     }
     public function getOne($condition = [], $contain = [])
@@ -84,11 +84,12 @@ class SuppliersTable extends Table
             return true;
         } else return false;
     }
-    public function deleteSupplier($id = null)
+    public function deleteSupplier($id = null, $updatedBy = null)
     {
-        $supplier = $this->getOne(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id]);
+        $supplier = $this->getOne(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id], []);
         $supplier->del_flag = DEL_FLAG;
-        $supplier->active = INACTIVE;
+        $supplier->updated_by = $updatedBy;
+        // $supplier->active = INACTIVE;
         if (!empty($supplier)) {
             if ($this->save($supplier)) {
                 return true;
@@ -97,7 +98,8 @@ class SuppliersTable extends Table
     }
     public function editSupplier($id = null, $data = [], $updatedBy = null)
     {
-        $supplier = $this->getOne(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id]);
+        // $supplier = $this->getOne(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id]);
+        $supplier = $this->find()->where(['del_flag' => UNDEL, 'active' => ACTIVE, 'id' => $id])->first();
         $supplier->name = $data['name'];
         $supplier->description = $data['description'];
         $supplier->updated_by = $updatedBy;

@@ -53,7 +53,7 @@ class SuppliersController extends AppController
      */
     public function add()
     {
-        $supplier = $this->Suppliers->newEmptyEntity();
+        $supplier = $this->m_supplier->newEmptyEntity();
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -78,7 +78,8 @@ class SuppliersController extends AppController
      */
     public function edit($id = null)
     {
-        $supplier = $this->m_supplier->getOne($id);
+        $supplier = $this->m_supplier->getOne(['id' => $id, 'del_flag' => UNDEL, 'active' => ACTIVE]);
+        // dd($supplier);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $supplier = $this->m_supplier->patchEntity($supplier, $data);
@@ -102,13 +103,13 @@ class SuppliersController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        if ($this->m_supplier->deleteSupplier($id)) {
+        // $this->request->allowMethod(['post', 'delete']);
+        $updatedBy = 1;
+        if ($this->m_supplier->deleteSupplier($id, $updatedBy)) {
             $this->Flash->success(__('The supplier has been deleted.'));
         } else {
             $this->Flash->error(__('The supplier could not be deleted. Please, try again.'));
         }
-
         return $this->redirect(['action' => 'index']);
     }
 }
